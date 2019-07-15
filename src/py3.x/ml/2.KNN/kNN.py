@@ -54,6 +54,7 @@ def classify0(inX, dataSet, labels, k):
     # 1. 距离计算
     dataSetSize = dataSet.shape[0]
     # tile生成和训练样本对应的矩阵，并与训练样本求差
+    # tile(a, (b, c)); matrix a n*n -> bn*cn: cope a's each row b times, copye a's each line c times.
     """
     tile: 列-3表示复制的行数， 行-1／2表示对inx的重复的次数
 
@@ -80,15 +81,15 @@ def classify0(inX, dataSet, labels, k):
     [[1,2,3],[1,2,3]]-[[1,2,3],[1,2,0]]
     (A1-A2)^2+(B1-B2)^2+(c1-c2)^2
     """
-    # 取平方
+    # 每个元素取平方
     sqDiffMat = diffMat ** 2
-    # 将矩阵的每一行相加
+    # 将矩阵的每一行相加 axis=1, process lines, change lines' shape; axis=0, process rows ,change rows num.
     sqDistances = sqDiffMat.sum(axis=1)
     # 开方
     distances = sqDistances ** 0.5
     # 根据距离排序从小到大的排序，返回对应的索引位置
     # argsort() 是将x中的元素从小到大排列，提取其对应的index（索引），然后输出到y。
-    # 例如：y=array([3,0,2,1,4,5]) 则，x[3]=1最小，所以y[0]=3;x[5]=5最大，所以y[5]=5。
+    # 例如：x = np.array([1, 4, 3, -1, 6, 9]); x.argsort(); y=array([3,0,2,1,4,5]); x[3]=-1最小，所以y[0]=3;x[5]=9最大，所以y[5]=5。
     # print 'distances=', distances
     sortedDistIndicies = distances.argsort()
     # print 'distances.argsort()=', sortedDistIndicies
@@ -100,7 +101,7 @@ def classify0(inX, dataSet, labels, k):
         voteIlabel = labels[sortedDistIndicies[i]]
         # 在字典中将该类型加一
         # 字典的get方法
-        # 如：list.get(k,d) 其中 get相当于一条if...else...语句,参数k在字典中，字典将返回list[k];如果参数k不在字典中则返回参数d,如果K在字典中则返回k对应的value值
+        # 如：list.get(k:v,d) 其中 get相当于一条if...else...语句,参数k在字典中，字典将返回list[k], 即k对应的v值;如果参数k不在字典中则返回参数d。
         # l = {5:2,3:4}
         # print l.get(3,0)返回的值是4；
         # Print l.get（1,0）返回值是0；
@@ -114,13 +115,13 @@ def classify0(inX, dataSet, labels, k):
     # b=sorted(a,key=opertator.itemgetter(1,0)) >>>b=[('c',0),('a',1),('b',2)] 这个是先比较第2个元素，然后对第一个元素进行排序，形成多级排序。
     sortedClassCount = sorted(classCount.items(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
-    
+
     # ------------------------------------------------------------------------------------------------------------------------------------------
     # 实现 classify0() 方法的第二种方式
 
     # """
     # 1. 计算距离
-    
+
     # 欧氏距离： 点到点之间的距离
     #    第一行： 同一个点 到 dataSet的第一个点的距离。
     #    第二行： 同一个点 到 dataSet的第二个点的距离。
@@ -129,15 +130,15 @@ def classify0(inX, dataSet, labels, k):
 
     # [[1,2,3],[1,2,3]]-[[1,2,3],[1,2,0]]
     # (A1-A2)^2+(B1-B2)^2+(c1-c2)^2
-    
+
     # inx - dataset 使用了numpy broadcasting，见 https://docs.scipy.org/doc/numpy-1.13.0/user/basics.broadcasting.html
     # np.sum() 函数的使用见 https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.sum.html
     # """
 	#   dist = np.sum((inx - dataset)**2, axis=1)**0.5
-    
+
     # """
     # 2. k个最近的标签
-    
+
     # 对距离排序使用numpy中的argsort函数， 见 https://docs.scipy.org/doc/numpy-1.13.0/reference/generated/numpy.sort.html#numpy.sort
     # 函数返回的是索引，因此取前k个索引使用[0 : k]
     # 将这k个标签存在列表k_labels中
@@ -145,7 +146,7 @@ def classify0(inX, dataSet, labels, k):
     # k_labels = [labels[index] for index in dist.argsort()[0 : k]]
 	# """
     # 3. 出现次数最多的标签即为最终类别
-    
+
     # 使用collections.Counter可以统计各个标签的出现次数，most_common返回出现次数最多的标签tuple，例如[('lable1', 2)]，因此[0][0]可以取出标签值
 	# """
     # label = Counter(k_labels).most_common(1)[0][0]
@@ -209,20 +210,22 @@ def autoNorm(dataSet):
         Y = (X-Xmin)/(Xmax-Xmin)
         其中的 min 和 max 分别是数据集中的最小特征值和最大特征值。该函数可以自动将数字特征值转化为0到1的区间。
     """
-    # 计算每种属性的最大值、最小值、范围
+    # get each line's min, max and range, each save to 1*n matrix.
     minVals = dataSet.min(0)
     maxVals = dataSet.max(0)
-    # 极差
     ranges = maxVals - minVals
     # -------第一种实现方式---start-------------------------
+    # create a empty matrix with the same size
     normDataSet = zeros(shape(dataSet))
+    # get dataSet's rows, shape[i] return the i axis's numbers
     m = dataSet.shape[0]
+    # tile(a, (b, c)); matrix a n*n -> bn*cn: cope a's each row b times, copye a's each line c times.
     # 生成与最小值之差组成的矩阵
     normDataSet = dataSet - tile(minVals, (m, 1))
     # 将最小值之差除以范围组成矩阵
     normDataSet = normDataSet / tile(ranges, (m, 1))  # element wise divide
     # -------第一种实现方式---end---------------------------------------------
-    
+
     # # -------第二种实现方式---start---------------------------------------
     # norm_dataset = (dataset - minvalue) / ranges
     # # -------第二种实现方式---end---------------------------------------------
@@ -241,7 +244,7 @@ def datingClassTest():
     # 设置测试数据的的一个比例（训练数据集比例=1-hoRatio）
     hoRatio = 0.1  # 测试范围,一部分测试一部分作为样本
     # 从文件中加载数据
-    datingDataMat, datingLabels = file2matrix("data/2.KNN/datingTestSet2.txt")  # load data setfrom file
+    datingDataMat, datingLabels = file2matrix("../../../../data/2.KNN/datingTestSet2.txt")  # load data setfrom file
     # 归一化数据
     normMat, ranges, minVals = autoNorm(datingDataMat)
     # m 表示数据的行数，即矩阵的第一维
@@ -291,7 +294,7 @@ def handwritingClassTest():
     """
     # 1. 导入数据
     hwLabels = []
-    trainingFileList = os.listdir("data/2.KNN/trainingDigits") # load the training set
+    trainingFileList = os.listdir("../../../../data/2.KNN/trainingDigits") # load the training set
     m = len(trainingFileList)
     trainingMat = zeros((m, 1024))
     # hwLabels存储0～9对应的index位置， trainingMat存放的每个位置对应的图片向量
@@ -301,17 +304,17 @@ def handwritingClassTest():
         classNumStr = int(fileStr.split('_')[0])
         hwLabels.append(classNumStr)
         # 将 32*32的矩阵->1*1024的矩阵
-        trainingMat[i] = img2vector('data/2.KNN/trainingDigits/%s' % fileNameStr)
+        trainingMat[i] = img2vector('../../../../data/2.KNN/trainingDigits/%s' % fileNameStr)
 
     # 2. 导入测试数据
-    testFileList = os.listdir('data/2.KNN/testDigits')  # iterate through the test set
+    testFileList = os.listdir('../../../../data/2.KNN/testDigits')  # iterate through the test set
     errorCount = 0
     mTest = len(testFileList)
     for i in range(mTest):
         fileNameStr = testFileList[i]
         fileStr = fileNameStr.split('.')[0]  # take off .txt
         classNumStr = int(fileStr.split('_')[0])
-        vectorUnderTest = img2vector('data/2.KNN/testDigits/%s' % fileNameStr)
+        vectorUnderTest = img2vector('../../../../data/2.KNN/testDigits/%s' % fileNameStr)
         classifierResult = classify0(vectorUnderTest, trainingMat, hwLabels, 3)
         print("the classifier came back with: %d, the real answer is: %d" % (classifierResult, classNumStr))
         errorCount += classifierResult != classNumStr
@@ -320,6 +323,6 @@ def handwritingClassTest():
 
 
 if __name__ == '__main__':
-    # test1()
+     # test1()
     # datingClassTest()
     handwritingClassTest()
