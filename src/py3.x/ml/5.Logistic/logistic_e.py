@@ -13,7 +13,6 @@ import numpy as np
 
 
 # ------使用 Logistic 回归在简单数据集上的分类-----------
-
 def load_data_set():
     """
     加载数据集
@@ -39,37 +38,6 @@ def sigmoid(x):
     # 如果是计算 np.exp（-6000），这样虽然也会溢出，但是这是下溢，就是表示成零
     # 去网上搜了很多方法，比如 使用bigfloat这个库（我竟然没有安装成功，就不尝试了，反正应该是有用的
     return 1.0 / (1 + np.exp(-x))
-
-
-def grad_ascent(data_arr, class_labels):
-    """
-    梯度上升法，其实就是因为使用了极大似然估计，这个大家有必要去看推导，只看代码感觉不太够
-    :param data_arr: 传入的就是一个普通的数组，当然你传入一个二维的ndarray也行
-    :param class_labels: class_labels 是类别标签，它是一个 1*100 的行向量。
-                    为了便于矩阵计算，需要将该行向量转换为列向量，做法是将原向量转置，再将它赋值给label_mat
-    :return: 
-    """
-    # 注意一下，我把原来 data_mat_in 改成data_arr,因为传进来的是一个数组，用这个比较不容易搞混
-    # turn the data_arr to numpy matrix
-    data_mat = np.mat(data_arr)
-    # 变成矩阵之后进行转置
-    label_mat = np.mat(class_labels).transpose()
-    # m->数据量，样本数 n->特征数
-    m, n = np.shape(data_mat)
-    # 学习率，learning rate
-    alpha = 0.001
-    # 最大迭代次数，假装迭代这么多次就能收敛2333
-    max_cycles = 500
-    # 生成一个长度和特征数相同的矩阵，此处n为3 -> [[1],[1],[1]]
-    # weights 代表回归系数， 此处的 ones((n,1)) 创建一个长度和特征数相同的矩阵，其中的数全部都是 1
-    weights = np.ones((n, 1))
-    for k in range(max_cycles):
-        # 这里是点乘  m x 3 dot 3 x 1
-        h = sigmoid(data_mat * weights)
-        error = label_mat - h
-        # 这里比较建议看一下推导，为什么这么做可以，这里已经是求导之后的
-        weights = weights + alpha * data_mat.transpose() * error
-    return weights
 
 
 def plot_best_fit(weights):
@@ -111,6 +79,37 @@ def plot_best_fit(weights):
     plt.xlabel('x1')
     plt.ylabel('y1')
     plt.show()
+
+
+def grad_ascent(data_arr, class_labels):
+    """
+    梯度上升法，其实就是因为使用了极大似然估计，这个大家有必要去看推导，只看代码感觉不太够
+    :param data_arr: 传入的就是一个普通的数组，当然你传入一个二维的ndarray也行
+    :param class_labels: class_labels 是类别标签，它是一个 1*100 的行向量。
+                    为了便于矩阵计算，需要将该行向量转换为列向量，做法是将原向量转置，再将它赋值给label_mat
+    :return:
+    """
+    # 注意一下，我把原来 data_mat_in 改成data_arr,因为传进来的是一个数组，用这个比较不容易搞混
+    # turn the data_arr to numpy matrix
+    data_mat = np.mat(data_arr)
+    # 变成矩阵之后进行转置
+    label_mat = np.mat(class_labels).transpose()
+    # m->数据量，样本数 n->特征数
+    m, n = np.shape(data_mat)
+    # 学习率，learning rate
+    alpha = 0.001
+    # 最大迭代次数，假装迭代这么多次就能收敛2333
+    max_cycles = 500
+    # 生成一个长度和特征数相同的矩阵，此处n为3 -> [[1],[1],[1]]
+    # weights 代表回归系数， 此处的 ones((n,1)) 创建一个长度和特征数相同的矩阵，其中的数全部都是 1
+    weights = np.ones((n, 1))
+    for k in range(max_cycles):
+        # 这里是点乘  m x 3 dot 3 x 1
+        h = sigmoid(data_mat * weights)
+        error = label_mat - h
+        # 这里比较建议看一下推导，为什么这么做可以，这里已经是求导之后的
+        weights = weights + alpha * data_mat.transpose() * error
+    return weights
 
 
 def stoc_grad_ascent0(data_mat, class_labels):
@@ -155,7 +154,7 @@ def stoc_grad_ascent1(data_mat, class_labels, num_iter=150):
             h = sigmoid(np.sum(data_mat[data_index[rand_index]] * weights))
             error = class_labels[data_index[rand_index]] - h
             weights = weights + alpha * error * data_mat[data_index[rand_index]]
-            del(data_index[rand_index])
+            del (data_index[rand_index])
     return weights
 
 
@@ -194,8 +193,8 @@ def colic_test():
     打开测试集和训练集，并对数据进行格式化处理,其实最主要的的部分，比如缺失值的补充（真的需要学会的），人家已经做了
     :return: 
     """
-    f_train = open('data/5.Logistic/HorseColicTraining.txt', 'r')
-    f_test = open('data/5.Logistic/HorseColicTest.txt', 'r')
+    f_train = open('../../../../data/5.Logistic/HorseColicTraining.txt', 'r')
+    f_test = open('../../../../data/5.Logistic/HorseColicTest.txt', 'r')
     training_set = []
     training_labels = []
     # 解析训练数据集中的数据特征和Labels
@@ -203,7 +202,7 @@ def colic_test():
     for line in f_train.readlines():
         curr_line = line.strip().split('\t')
         if len(curr_line) == 1:
-            continue    # 这里如果就一个空的元素，则跳过本次循环
+            continue  # 这里如果就一个空的元素，则跳过本次循环
         line_arr = [float(curr_line[i]) for i in range(21)]
         training_set.append(line_arr)
         training_labels.append(float(curr_line[21]))
@@ -215,8 +214,8 @@ def colic_test():
     for line in f_test.readlines():
         num_test_vec += 1
         curr_line = line.strip().split('\t')
-        if len(curr_line) == 1: 
-            continue    # 这里如果就一个空的元素，则跳过本次循环
+        if len(curr_line) == 1:
+            continue  # 这里如果就一个空的元素，则跳过本次循环
         line_arr = [float(curr_line[i]) for i in range(21)]
         if int(classify_vector(np.array(line_arr), train_weights)) != int(curr_line[21]):
             error_count += 1
@@ -239,7 +238,6 @@ def multi_test():
 
 if __name__ == '__main__':
     # 请依次运行下面三个函数做代码测试
-    test()
+    # test()
     # colic_test()
-    # multi_test()
-
+    multi_test()

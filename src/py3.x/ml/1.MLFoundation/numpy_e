@@ -1,0 +1,18 @@
+from numpy import random, mat, eye
+
+'''
+test numpy: also array and matrix convert to each other in numpy.
+'''
+randArr = random.rand(4, 4)
+randMat = mat(randArr)
+invRandMat = randMat.I
+traRandMat = randMat.T
+arrRandMat = randMat.A
+
+print('randArr (%s)\n' % type(randArr), randArr)
+print('randMat (%s)\n' % type(randMat), randMat)
+print('invRandMat (%s)\n' % type(invRandMat), invRandMat)
+print('traRandMat (%s)\n' % type(traRandMat), traRandMat)
+print('arrRandMat (%s)\n' % type(arrRandMat), arrRandMat)
+print('eye:', invRandMat * randMat, eye(4))
+# print('eye:', eye(4))

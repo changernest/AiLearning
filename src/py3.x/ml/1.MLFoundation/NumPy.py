@@ -49,8 +49,9 @@ print('invRandMat=(%s) \n' % type(invRandMat), invRandMat)
 print('TraRandMat=(%s) \n' % type(TraRandMat), TraRandMat)
 print('ArrRandMat=(%s) \n' % type(ArrRandMat), ArrRandMat)
 # 矩阵和逆矩阵 进行求积 (单位矩阵，对角线都为1嘛，理论上4*4的矩阵其他的都为0)
-myEye = randMat*invRandMat
+myEye = randMat * invRandMat
 # 误差
+print('myEye', myEye)
 print(myEye - eye(4))
 
 '''

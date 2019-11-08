@@ -227,9 +227,9 @@ def autoNorm(dataSet):
     # -------第一种实现方式---end---------------------------------------------
 
     # # -------第二种实现方式---start---------------------------------------
-    # norm_dataset = (dataset - minvalue) / ranges
+    norm_dataset = (dataSet - minVals) / ranges
     # # -------第二种实现方式---end---------------------------------------------
-    return normDataSet, ranges, minVals
+    return norm_dataset, ranges, minVals
 
 
 def datingClassTest():
