@@ -4,6 +4,12 @@ from numpy import *
 import os
 import operator
 
+'''
+KNN分类：
+已有一个带标记的数据集；将测试数据跟现有数据集做距离计算，
+选出距离最近的K个数据，采用多数表决确定最终分类。
+'''
+
 
 def createDataSet():
     data = array([[0, 0], [1, 1], [0.2, 0.2], [0.9, 0.9]])
